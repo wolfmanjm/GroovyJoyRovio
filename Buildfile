@@ -11,12 +11,11 @@ repositories.remote << 'http://www.ibiblio.org/maven2/'
 repositories.remote << 'http://repo1.maven.org/maven2/'
 repositories.remote << "http://repository.codehaus.org/"
 repositories.remote << "http://snapshots.repository.codehaus.org/"
-repositories.remote << "http://snapshots.repository.codehaus.org/"
 
 COMMONS             = struct(
   :codec            =>"commons-codec:commons-codec:jar:1.3",
   :io               =>"commons-io:commons-io:jar:1.2",
-  :collections      =>"commons-collections:commons-collections:jar:3.2",
+  :collections      =>"commons-collections:commons-collections:jar:3.2.1",
   :beanutils        =>"commons-beanutils:commons-beanutils:jar:1.7.0",
   :dbcp             =>"commons-dbcp:commons-dbcp:jar:1.2.1",
   :fileupload       =>"commons-fileupload:commons-fileupload:jar:1.1.1",
@@ -29,16 +28,23 @@ COMMONS             = struct(
 
 LOGGER= [group('slf4j-api', :under => 'org.slf4j', :version => '1.6.1'), transitive('ch.qos.logback:logback-classic:jar:0.9.29')]
 
-HTTPBUILDER= [ 'org.apache.httpcomponents:httpclient:jar:4.0.3', 'org.apache.httpcomponents:httpcore:jar:4.0.1', COMMONS.logging, COMMONS.codec, COMMONS.collections ]
 # 'org.codehaus.groovy.modules.http-builder:http-builder:jar:0.5.2-SNAPSHOT',
+HTTPBUILDER= [ 'org.apache.httpcomponents:httpclient:jar:4.0.3', 'org.apache.httpcomponents:httpcore:jar:4.0.1',
+               COMMONS.logging, COMMONS.codec, COMMONS.collections,
+               'net.sf.json-lib:json-lib:jar:jdk15:2.3', 'xml-resolver:xml-resolver:jar:1.2' ]
 
-LIBS= [LOGGER, HTTPBUILDER]
+MIGLAYOUT= 'com.miglayout:miglayout:jar:swing:3.7.4'
+
+LIBS= [LOGGER, HTTPBUILDER, MIGLAYOUT]
+
+artifact_ns(Buildr::Groovy::Groovyc).groovy = '1.8.0'
 
 define 'rovio' do
   project.group = GROUP
   project.version = VERSION_NUMBER
   compile.options.target = '1.6'
-  compile.with LIBS
+  compile.with LIBS, _("libs/Joystick.jar"), _("libs/http-builder-0.5.2-20110320.041601-11.jar"), _()
+  package(:jar)
 end
 
 desc "copy artifacts into libs"
@@ -59,6 +65,6 @@ end
 
 task :trans do
   # puts transitive(LOGGING.first)
-#  puts transitive('org.codehaus.groovy.modules.http-builder:http-builder:jar:0.5.2-SNAPSHOT')
-  puts transitive('org.apache.httpcomponents:httpclient:jar:4.0.3')
+  puts transitive('org.codehaus.groovy.modules.http-builder:http-builder:jar:0.5.2-SNAPSHOT')
+  #puts transitive('org.apache.httpcomponents:httpclient:jar:4.0.3')
 end
