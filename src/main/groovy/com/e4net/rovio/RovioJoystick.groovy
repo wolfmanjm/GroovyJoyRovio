@@ -8,6 +8,7 @@ public class RovioJoystick {
 	private Joystick joy
 	private Thread thread
 	private Comms comms;
+	private final int MAX_SPEED= 10;
 	
 	RovioJoystick(comms) {
 		joy = Joystick.createInstance(0)
@@ -48,6 +49,8 @@ public class RovioJoystick {
 	}
 	
 	boolean calcMovement(int x, int y) {
+		log.trace "calcMovement x= {}, y= {}", x, y
+		
 		if(x == 0 && y == 0){
 			setMovement('none', 0)
 			return false
@@ -67,7 +70,7 @@ public class RovioJoystick {
 				case {angle < 22.5D}:
 						move_id = 'forward'; break
 				case {angle < 67.5D}:
-						move_id = 'foward_right'; break
+						move_id = 'forward_right'; break
 				case {angle < 112.5D}:
 						move_id = 'right'; break
 				case {angle < 157.5D}:
@@ -79,26 +82,28 @@ public class RovioJoystick {
 				case {angle < 292.5D}:
 						move_id = 'left'; break
 				case {angle < 337.5D}:
-						move_id = 'foward_left'; break
+						move_id = 'forward_left'; break
 				case {angle <= 360.0D}:
 						move_id = 'forward'; break
 			}
 			
 			// print "move_id: $move_id"
-			def speed= [x.abs(), y.abs()].max()
-			setMovement(move_id, speed)
+			def speed = ((1 - (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) / 100)) * (MAX_SPEED));
+			//def speed= [x.abs(), y.abs()].max()
+			
+			setMovement(move_id, Math.round(speed) as Integer)
 			return true
 		}
 	}
 	
 	boolean move(float x, float y) {
-		int nx= (x * 100).toInteger()
-		int ny= (y * 100).toInteger()
+		int nx= Math.round(x * 100)
+		int ny= Math.round(y * 100)
 		calcMovement(nx, ny)
 	}
 	
 	boolean rotate(float r){
-		int nr= (r * 100).toInteger()
+		int nr= Math.round(r * 100)
 		if(nr == 0){
 			setRotation('none', 0)
 			return false
@@ -119,9 +124,10 @@ public class RovioJoystick {
 	
 	// dir is 'left'|'right', speed is percentage
 	def setRotation(String dir, int speed) {
+		log.trace("setRotation: {} - {}", dir, speed)
 		// set 1 to max, 10 to min
 		speed= [100, speed].min()
-		int s= 10 - (speed/10)
+		int s= 10 -  Math.round(speed/10)
 		s= [s, 1].max()
 		int d= 0
 		
@@ -139,12 +145,16 @@ public class RovioJoystick {
 	}
 	
 	def setMovement(String dir, int speed) {
-		// print "move: $dir - $speed"
+		log.trace "move: {} - {}", dir, speed
 		
 		// set 1 to max, 10 to min
-		speed= [100, speed].min()
-		int s= 10 - (speed/10)
-		s= [s, 1].max()
+		def s= speed
+		if(speed > 10) s= 10
+		else if(speed < 1) s= 1
+		
+//		speed= [100, speed].min()
+//		int s= 10 - (speed/10)
+//		s= [s, 1].max()
 		int drive_cmd= 0
 		
 		switch(dir) {

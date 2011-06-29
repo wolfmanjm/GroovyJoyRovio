@@ -14,4 +14,4 @@ appender("RootConsoleAppender", ConsoleAppender) {
 	pattern = "%r [%t] %p, %c - %m%n"
   }
 }
-root(DEBUG, ["RootConsoleAppender"])
+root(TRACE, ["RootConsoleAppender"])
