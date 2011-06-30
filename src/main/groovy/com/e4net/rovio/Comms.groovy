@@ -75,4 +75,18 @@ class Comms {
 		}
 		return status
 	}
+	
+	def moveHead(def dir, def delta=1.0) {
+		switch(dir){
+			case "up":
+				sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: '11', speed: '10'])
+				sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: '0', speed: '10'])
+				break
+				
+			case "down":
+				sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: '12', speed: '10'])
+				sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: '0', speed: '10'])
+				break
+		}		
+	}
 }

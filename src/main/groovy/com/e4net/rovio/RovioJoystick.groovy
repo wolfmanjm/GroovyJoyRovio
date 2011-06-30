@@ -13,8 +13,7 @@ public class RovioJoystick {
 	RovioJoystick(comms) {
 		joy = Joystick.createInstance(0)
 		println "Opened joystick: ${joy.toString()}"
-		this.comms= comms
-		
+		this.comms= comms	
 	}
 	
 	def start() {
@@ -22,15 +21,19 @@ public class RovioJoystick {
 			while(!Thread.interrupted()) {
 				joy.poll()
 				handleJoy(joy)
-				Thread.sleep(150)
+				Thread.sleep(100)
 			}
 		}
 	}
 	
 	void handleJoy(Joystick joy){
 		// move takes priority over rotate
-		if(!move(joy.getX(), joy.getY()))
-			rotate(joy.getZ())
+		def x= joy.getX()
+		def y= joy.getY()
+		def z= joy.getZ()
+		
+		if(!move(x, y))
+			rotate(z)
 			
 		// throttle -1.0 - +1.0
 		def u= joy.getR();
@@ -45,7 +48,15 @@ public class RovioJoystick {
 		def b= joy.getButtons();
 		//def pov= joy.getPOV();
 		
-		//log.trace("handleJoy() - u= " + u + ", v= " + v + ", r= " + r + ", b= " + b);
+		if(comms) {
+			if(b & 4) {
+				comms.moveHead("up")
+			}else if(b & 8) {
+				comms.moveHead("down")
+			}
+		}
+		
+		//log.trace("handleJoy() - x= $x, y= $y, z= $z, u= $u, v= $v, r= $r, b= $b");
 	}
 	
 	boolean calcMovement(int x, int y) {
@@ -183,30 +194,10 @@ public class RovioJoystick {
 	}
 	
 	def command(d, s) {
-		String data = "Cmd=nav&action=18&drive=$d&speed=$s"
-		comms.sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: d, speed: s]);
+		if(comms)
+			comms.sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: d, speed: s]);
 	}
 		
-	//    video_thread= Thread.start {
-	//      while(!Thread.interrupted()) {
-	//        displayVideo()
-	//        sleep(33)
-	//      }
-	//    }
-	
-	
-	//  def displayVideo() {
-	//    http.get(path: "/Jpeg/CamImg.jpg"){
-	//      resp, reader ->
-	//      // println "response status: ${resp.statusLine}"
-	//      assert resp.statusCode == 200
-	//      len= resp.headers.'Content-Length'
-	//      buf << reader
-	//      assert buf.size == len
-	//      displayJPEG(buf)
-	//    }
-	//  }
-	
 	def stop() {
 		thread.interrupt()
 	}
@@ -219,6 +210,7 @@ public class RovioJoystick {
 	}
 	
 	public static void main(String[] args) {
-		create()
+		RovioJoystick rovio = new RovioJoystick(null)
+		rovio.start()
 	}
 }

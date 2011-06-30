@@ -30,7 +30,7 @@ import net.miginfocom.swing.MigLayout
 class RovioConsole {
 	SwingBuilder swing
 	def model
-	def comms
+	Comms comms
 	def mjpeg
 	def resolution
 	boolean running= false
@@ -93,7 +93,7 @@ class RovioConsole {
 					checkBox(id: 'light', text: 'Light', actionPerformed: {comms.setLight(light.selected)}, constraints: 'sg, align left')
 					checkBox(id: 'bluelight', text: 'blue', selected: true, actionPerformed: {comms.setBlueLights(bluelight.selected)}, constraints: 'sg, align left')
 
-					button(text:'Test', constraints: 'gap push, sg, align right', actionPerformed: { currentResolution= 2 })
+					button(text:'Test', constraints: 'gap push, sg, align right', actionPerformed: { comms.moveHead("up") })
 					button(id: 'start', text:'Start', constraints: 'gap push, sg, align right', actionPerformed: { start() })
 					button(id: 'stop', text:'Stop', constraints: 'sg, align right', actionPerformed: { stop() })
 					button(text:'Quit', constraints: 'sg, align right, wrap', actionPerformed: { System.exit(0) })
