@@ -43,8 +43,10 @@ define 'rovio' do
   project.group = GROUP
   project.version = VERSION_NUMBER
   compile.options.target = '1.6'
-  compile.with LIBS, _("libs/Joystick.jar"), _("libs/http-builder-0.5.2-20110320.041601-11.jar"), _()
+  compile.with LIBS, _("libs/Joystick.jar"), _("libs/http-builder-0.5.2-20110320.041601-11.jar")
+  #, _("libs/groovypp-0.4.268_1.8.0.jar")
   package(:jar)
+  run.using :main => "com.e4net.rovio.RovioConsole", :java_args => ["-Djava.library.path=./libs"]
 end
 
 desc "copy artifacts into libs"

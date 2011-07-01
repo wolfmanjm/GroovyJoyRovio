@@ -4,7 +4,7 @@ import com.centralnexus.input.Joystick
 import groovy.util.logging.Slf4j
 
 @Slf4j
-public class RovioJoystick {
+public class RovioJoystick {	
 	private Joystick joy
 	private Thread thread
 	private Comms comms
@@ -43,25 +43,25 @@ public class RovioJoystick {
 	
 	void handleJoy(Joystick joy){
 		// move takes priority over rotate
-		def x= joy.getX()
-		def y= joy.getY()
-		def z= joy.getZ()
+		float x= joy.getX()
+		float y= joy.getY()
+		float z= joy.getZ()
 		
 		if(!move(x, y))
 			rotate(z)
 			
 		// throttle -1.0 - +1.0
-		def u= joy.getR();
+//		float u= joy.getR();
 		
 		// hat rgt= 1.0 lft= -1.0
-		def r= joy.getU();
+//		float r= joy.getU();
 		
 		// hat up -1.0 down +1.0
-		def v= joy.getV();
+//		float v= joy.getV();
+//      def pov= joy.getPOV();
 		
 		// buttons
-		def b= joy.getButtons();
-		//def pov= joy.getPOV();
+		int b= joy.getButtons();
 		
 		if(comms) {
 			if(b & 4) {
@@ -82,7 +82,7 @@ public class RovioJoystick {
 			return false
 			
 		}else{
-			def move_id = 'none'
+			String move_id = 'none'
 			double angler = Math.atan2(x, -y)
 			
 			if(angler < 0D)
@@ -114,7 +114,7 @@ public class RovioJoystick {
 			}
 			
 			// print "move_id: $move_id"
-			def speed = ((1 - (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) / 100)) * (MAX_SPEED));
+			float speed = ((1 - (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) / 100)) * (MAX_SPEED));
 			//def speed= [x.abs(), y.abs()].max()
 			
 			setMovement(move_id, Math.round(speed) as Integer)
@@ -178,7 +178,7 @@ public class RovioJoystick {
 		//log.debug "move: {} - {}", dir, speed
 		
 		// set 1 to max, 10 to min
-		def s= speed
+		int s= speed
 		if(speed > 10) s= 10
 		else if(speed < 1) s= 1
 		
@@ -212,14 +212,14 @@ public class RovioJoystick {
 			command(drive_cmd, s)
 	}
 	
-	def command(d, s) {
+	void command(d, s) {
 		if(comms)
 			comms.motor(d, s)
 		else
 			log.debug("drive: {}, speed: {}", d, s)	
 	}
 		
-	def stop() {
+	void stop() {
 		thread.interrupt()
 	}
 	

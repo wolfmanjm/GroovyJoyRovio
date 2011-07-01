@@ -25,13 +25,12 @@ import net.miginfocom.swing.MigLayout
  *
  */
 
-
 @Slf4j
 class RovioConsole {
 	SwingBuilder swing
 	def model
 	Comms comms
-	def mjpeg
+	MJPEGParser mjpeg
 	def resolution
 	boolean running= false
 	
@@ -186,7 +185,6 @@ class RovioConsole {
 	}
 
 }
-
 
 @Slf4j
 class MyMJPEG extends MJPEGParser {
