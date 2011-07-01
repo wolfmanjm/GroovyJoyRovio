@@ -27,6 +27,9 @@ import net.miginfocom.swing.MigLayout
 
 @Slf4j
 class RovioConsole {
+	static final String USERNAME= "admin"
+	static final String PASSWORD= "admin"
+	
 	SwingBuilder swing
 	def model
 	Comms comms
@@ -176,12 +179,12 @@ class RovioConsole {
 		def rovio= new RovioConsole()
 		rovio.show()
 
-		def comms= new Comms("http://rovio", "morris", "qaz1xsw")
+		def comms= new Comms("http://rovio", USERNAME, PASSWORD)
 		rovio.comms= comms
 
 		def joy= RovioJoystick.create(comms)
 
-		rovio.mjpeg= new MyMJPEG(rovio, "http://rovio/GetData.cgi", "morris", "qaz1xsw")
+		rovio.mjpeg= new MyMJPEG(rovio, "http://rovio/GetData.cgi", USERNAME, PASSWORD)
 	}
 
 }
