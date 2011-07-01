@@ -178,13 +178,20 @@ class RovioConsole {
 	static main(args) {
 		def rovio= new RovioConsole()
 		rovio.show()
-
-		def comms= new Comms("http://rovio", USERNAME, PASSWORD)
+		String username= USERNAME
+		String password= PASSWORD
+		
+		if(args.length >= 2){
+			username= args[0]
+			password= args[1]
+		}
+		
+		def comms= new Comms("http://rovio", username, password)
 		rovio.comms= comms
 
 		def joy= RovioJoystick.create(comms)
 
-		rovio.mjpeg= new MyMJPEG(rovio, "http://rovio/GetData.cgi", USERNAME, PASSWORD)
+		rovio.mjpeg= new MyMJPEG(rovio, "http://rovio/GetData.cgi", username, password)
 	}
 
 }

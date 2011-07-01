@@ -17,7 +17,7 @@ The two side buttons on the Sidewinder move the Camera head up and
 down, short presses move it up a little so it can have more than three
 positions.
 
-All the library dependenciaes are in the ./libs directory.
+All the library dependencies are in the ./libs directory.
 
 The UI uses SwingBuilder from Groovy for the UI, which makes it pretty
 easy to write and modify.
@@ -25,7 +25,9 @@ easy to write and modify.
 Currently it can to be built with eclipse and the groovy/eclipse plugin.
 Also buildr will build it.
 
-You will need to edit the USERERNAME and PASSWORD variables to match.
+You will need to edit the USERERNAME and PASSWORD variables to match,
+or enter them as arguments on the comamnd line or run configuration.
+
 Also under eclipse you need to add -Djava.library.path=./libs to the
 Run configuration as this is not saved locally.
 
@@ -36,7 +38,11 @@ then
 
 > buildr test=no package
 
-then it can be run with the run script or with 
+then it can be run with the 
+
+> run username password
+
+script or with 
 
 > buildr test=no run
 

@@ -30,7 +30,14 @@ public class MJPEGParser {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		MJPEGParser m= new MJPEGParser("http://rovio/GetData.cgi", USERNAME, PASSWORD);
+		String username= USERNAME;
+		String password= PASSWORD;
+		
+		if(args.length >= 2){
+			username= args[0];
+			password= args[1];
+		}
+		MJPEGParser m= new MJPEGParser("http://rovio/GetData.cgi", username, password);
 		m.start();
 	}
 
