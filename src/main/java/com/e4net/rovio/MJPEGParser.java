@@ -12,7 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MJPEGParser {
-	private static final Logger jlog = LoggerFactory.getLogger(MJPEGParser.class); 
+	private static final Logger jlog = LoggerFactory.getLogger(MJPEGParser.class);
+
+	private static final String USERNAME = "admin";
+	private static final String PASSWORD = "admin"; 
 	
 	private final int MAXFRAME= 8192;
 	private String boundary=  "--WINBONDBOUDARY";
@@ -27,7 +30,7 @@ public class MJPEGParser {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		MJPEGParser m= new MJPEGParser("http://rovio/GetData.cgi", "morris", "qaz1xsw");
+		MJPEGParser m= new MJPEGParser("http://rovio/GetData.cgi", USERNAME, PASSWORD);
 		m.start();
 	}
 
