@@ -75,7 +75,7 @@ public class RovioJoystick {
 	}
 	
 	boolean calcMovement(int x, int y) {
-		//log.trace "calcMovement x= {}, y= {}", x, y
+		//log.debug "calcMovement x= {}, y= {}", x, y
 		
 		if(x == 0 && y == 0){
 			setMovement('none', 0)
@@ -129,7 +129,7 @@ public class RovioJoystick {
 	}
 	
 	boolean rotate(float r){
-		int nr= Math.round(r * 100)
+		int nr= Math.round(r * 10)
 		if(nr == 0){
 			setRotation('none', 0)
 			return false
@@ -148,13 +148,17 @@ public class RovioJoystick {
 		return false
 	}
 	
-	// dir is 'left'|'right', speed is percentage
+	// dir is 'left'|'right', speed is 0-10
 	def setRotation(String dir, int speed) {
 		//log.trace("setRotation: {} - {}", dir, speed)
-		// set 1 to max, 10 to min
-		speed= [100, speed].min()
-		int s= 10 -  Math.round(speed/10)
-		s= [s, 1].max()
+		if(speed < 1) // 0 - 1 is dead spot
+			return;
+		
+		if(speed > 10)
+			speed= 10;
+			
+		// speed is 1-10 where 10 is fastest, need to invert to 10-1 where 1 is fastest
+		int s= 11 - speed // invert		
 		int d= 0
 		
 		switch(dir) {
@@ -171,7 +175,7 @@ public class RovioJoystick {
 	}
 	
 	def setMovement(String dir, int speed) {
-		//log.trace "move: {} - {}", dir, speed
+		//log.debug "move: {} - {}", dir, speed
 		
 		// set 1 to max, 10 to min
 		def s= speed
@@ -211,6 +215,8 @@ public class RovioJoystick {
 	def command(d, s) {
 		if(comms)
 			comms.motor(d, s)
+		else
+			log.debug("drive: {}, speed: {}", d, s)	
 	}
 		
 	def stop() {
