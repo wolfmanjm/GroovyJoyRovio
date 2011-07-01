@@ -40,4 +40,5 @@ Currently only tested on Linux, however there is a joystick dll in the
 libs directory, so it should work on windows if the dll is on the
 PATH.
 
-
+Licensed under the Apache license
+http://www.apache.org/licenses/LICENSE-2.0.html
