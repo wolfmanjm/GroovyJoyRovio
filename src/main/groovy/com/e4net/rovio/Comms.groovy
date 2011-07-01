@@ -12,7 +12,7 @@ class Comms {
 		http.auth.basic user, password
 	}
 
-	def sendCommand(cmd, params) {
+	def synchronized sendCommand(cmd, params) {
 		log.trace("path: {}, params: {}", cmd, params)
 		http.get(path: cmd, query: params)
 	}
@@ -88,5 +88,13 @@ class Comms {
 				sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: '0', speed: '10'])
 				break
 		}		
+	}
+	
+	def motor(drv, spd ) {
+		sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: drv, speed: spd]);
+	}
+	
+	def setFrameRate(r) {
+		sendCommand('ChangeFramerate.cgi', ['Framerate': r])
 	}
 }

@@ -7,12 +7,14 @@ import groovy.util.logging.Slf4j
 public class RovioJoystick {
 	private Joystick joy
 	private Thread thread
-	private Comms comms;
-	private final int MAX_SPEED= 10;
+	private Comms comms
+	private final int MAX_SPEED= 10
+	private long lastUpdate= 0
+	private final int MOTORDELAY= 200
 	
 	RovioJoystick(comms) {
 		joy = Joystick.createInstance(0)
-		println "Opened joystick: ${joy.toString()}"
+		log.info "Opened joystick: ${joy.toString()}"
 		this.comms= comms	
 	}
 	
@@ -21,7 +23,20 @@ public class RovioJoystick {
 			while(!Thread.interrupted()) {
 				joy.poll()
 				handleJoy(joy)
-				Thread.sleep(100)
+				
+				long now= System.currentTimeMillis()
+				if(lastUpdate != 0) {
+					long delay= MOTORDELAY - (now - lastUpdate)
+					if(delay > 0){
+						//log.debug "sleep for {}", delay
+						Thread.sleep(delay)
+					}else{
+						//log.debug "delay= {}", delay
+					}
+					lastUpdate= System.currentTimeMillis()
+					
+				}else
+					lastUpdate= now;
 			}
 		}
 	}
@@ -60,7 +75,7 @@ public class RovioJoystick {
 	}
 	
 	boolean calcMovement(int x, int y) {
-		log.trace "calcMovement x= {}, y= {}", x, y
+		//log.trace "calcMovement x= {}, y= {}", x, y
 		
 		if(x == 0 && y == 0){
 			setMovement('none', 0)
@@ -135,7 +150,7 @@ public class RovioJoystick {
 	
 	// dir is 'left'|'right', speed is percentage
 	def setRotation(String dir, int speed) {
-		log.trace("setRotation: {} - {}", dir, speed)
+		//log.trace("setRotation: {} - {}", dir, speed)
 		// set 1 to max, 10 to min
 		speed= [100, speed].min()
 		int s= 10 -  Math.round(speed/10)
@@ -156,7 +171,7 @@ public class RovioJoystick {
 	}
 	
 	def setMovement(String dir, int speed) {
-		log.trace "move: {} - {}", dir, speed
+		//log.trace "move: {} - {}", dir, speed
 		
 		// set 1 to max, 10 to min
 		def s= speed
@@ -195,15 +210,14 @@ public class RovioJoystick {
 	
 	def command(d, s) {
 		if(comms)
-			comms.sendCommand('rev.cgi', [Cmd: 'nav', action: '18', drive: d, speed: s]);
+			comms.motor(d, s)
 	}
 		
 	def stop() {
 		thread.interrupt()
 	}
 	
-	public static create() {
-		def comms= new Comms("http://rovio", "morris", "qaz1xsw")
+	public static create(comms) {
 		RovioJoystick rovio = new RovioJoystick(comms)
 		rovio.start()
 		return rovio

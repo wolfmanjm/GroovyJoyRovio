@@ -130,6 +130,7 @@ class RovioConsole {
 			currentResolution= s.resolution as Integer
 		}
 		log.debug "current resolution: {}", currentResolution
+		comms.setFrameRate(15)
 	}
 	
 	def stop() {
@@ -179,7 +180,7 @@ class RovioConsole {
 		def comms= new Comms("http://rovio", "morris", "qaz1xsw")
 		rovio.comms= comms
 
-		def joy= RovioJoystick.create()
+		def joy= RovioJoystick.create(comms)
 
 		rovio.mjpeg= new MyMJPEG(rovio, "http://rovio/GetData.cgi", "morris", "qaz1xsw")
 	}
@@ -189,25 +190,26 @@ class RovioConsole {
 
 @Slf4j
 class MyMJPEG extends MJPEGParser {
-	long lasttime= 0;
+	long lasttime;
 	int cnt= 0;
 	RovioConsole frame;
 
 	public MyMJPEG(RovioConsole frame, String mjpeg_url, String username, String password) {
 		super(mjpeg_url, username, password);
 		this.frame= frame;
+		lasttime= System.currentTimeMillis()
 	}
 
 	@Override
 	protected void handleJPEG(byte[] capture, int jpegSize) {
 		long tm= System.currentTimeMillis();
-		if(lasttime == 0){
-			lasttime= tm;
-		}else if((tm-lasttime) >= 1000){
-			frame.setFrameRate(cnt);
+		def delta= tm-lasttime
+		if(delta >= 1000){
+			frame.setFrameRate((cnt/(delta/1000)) as Integer);
 			cnt= 0;
 			lasttime= tm;
 		}
+	
 		cnt++;
 		frame.setImage(capture);
 	}
