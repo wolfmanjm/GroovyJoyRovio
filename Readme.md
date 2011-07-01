@@ -25,6 +25,8 @@ easy to write and modify.
 Currently it can to be built with eclipse and the groovy/eclipse plugin.
 Also buildr will build it.
 
+You will need to edit the USERERNAME and PASSWORD variables to match.
+
 presuming you have a ruby in your path...
 > gem install buildr
 
