@@ -46,6 +46,15 @@ script or with
 
 > buildr test=no run
 
+To set a username and password for the buildr run you can create a
+file in the project directory called `user.local.yml` and put the
+following in it..
+
+    rovio:
+      username: myusername
+      password: mypassword
+
+
 Currently only tested on Linux, however there is a joystick dll in the
 libs directory, so it should work on windows if the dll is on the
 PATH.

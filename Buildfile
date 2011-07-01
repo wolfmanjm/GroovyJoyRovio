@@ -39,6 +39,7 @@ LIBS= [LOGGER, HTTPBUILDER, MIGLAYOUT]
 
 artifact_ns(Buildr::Groovy::Groovyc).groovy = '1.8.0'
 
+
 define 'rovio' do
   project.group = GROUP
   project.version = VERSION_NUMBER
@@ -46,7 +47,17 @@ define 'rovio' do
   compile.with LIBS, _("libs/Joystick.jar"), _("libs/http-builder-0.5.2-20110320.041601-11.jar")
   #, _("libs/groovypp-0.4.268_1.8.0.jar")
   package(:jar)
-  run.using :main => "com.e4net.rovio.RovioConsole", :java_args => ["-Djava.library.path=./libs"]
+
+  # load up local profiles info, can store passwords here
+  if File.exist?("user.local.yml")
+    Buildr.settings.user.merge!(YAML.load(File.read(_("user.local.yml"))))
+    #puts "settings: #{Buildr.settings.user.inspect}"
+    username, password= Buildr.settings.user['rovio'].values_at('username', 'password')
+  else
+    username= "admin"
+    password= "admin"
+  end
+  run.using :main => ["com.e4net.rovio.RovioConsole", username, password], :java_args => ["-Djava.library.path=./libs"]
 end
 
 desc "copy artifacts into libs"
