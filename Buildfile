@@ -52,12 +52,13 @@ define 'rovio' do
   if File.exist?("user.local.yml")
     Buildr.settings.user.merge!(YAML.load(File.read(_("user.local.yml"))))
     #puts "settings: #{Buildr.settings.user.inspect}"
-    username, password= Buildr.settings.user['rovio'].values_at('username', 'password')
+    host, username, password= Buildr.settings.user['rovio'].values_at('host', 'username', 'password')
   else
+    host= ""
     username= ""
     password= ""
   end
-  run.using :main => ["com.e4net.rovio.RovioConsole", username, password], :java_args => ["-Djava.library.path=./libs"]
+  run.using :main => ["com.e4net.rovio.RovioConsole", host, username, password], :java_args => ["-Djava.library.path=./libs"]
 end
 
 desc "copy artifacts into libs"

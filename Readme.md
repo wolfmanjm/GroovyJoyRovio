@@ -26,7 +26,7 @@ Currently it can to be built with eclipse and the groovy/eclipse plugin.
 Also buildr will build it.
 
 The admin login for the Rovio can be entered on the command line as
-username password, or left blank and the first time the program runs
+hostname username password, or left blank and the first time the program runs
 it will ask for the login and store them in the Java default
 preferences location.
 
@@ -47,7 +47,7 @@ then it can be run with
 
 or 
 
-> run username password
+> run hostOrIP username password
 
 or
 
@@ -58,6 +58,7 @@ file in the project directory called `user.local.yml` and put the
 following in it..
 
     rovio:
+      host: ip or hostname
       username: myusername
       password: mypassword
 
@@ -66,5 +67,14 @@ Currently only tested on Linux, however there is a joystick dll in the
 libs directory, so it should work on windows if the dll is on the
 PATH.
 
+Once running click the start button and the video window should
+appear, then the AGC or Night mode can be set or the resolution from
+the UI, the rest is controlled from the joystick.
+
+The Status bar at the bottom shows the frames per second we are
+getting via MJPEG, what we are connected to, and the approximate
+battery level.
+
+Copyright Jim Morris 2011
 Licensed under the Apache license
 http://www.apache.org/licenses/LICENSE-2.0.html

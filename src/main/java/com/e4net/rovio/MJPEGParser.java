@@ -22,6 +22,9 @@ public class MJPEGParser {
 	private String password;
 	private BufferedInputStream bis;
 	private enum State {FIRST, SKIP, SECOND};
+	private long lasttime;
+	private int frameCnt;
+	
 	
 	/**
 	 * @param args
@@ -152,8 +155,18 @@ public class MJPEGParser {
 		}
 	}
 	
+	// needs to be overriden, this is for debugging
 	protected void handleJPEG(byte[] capture, int jpegSize) {
-		jlog.trace("Got jpeg frame of: {}", jpegSize);
+		long tm= System.currentTimeMillis();
+		long delta= tm-lasttime;
+		if(delta >= 1000){
+			int fps= (int)(frameCnt/(delta/1000));
+			frameCnt= 0;
+			lasttime= tm;
+			jlog.debug("Got jpeg frame of: {} bytes - {} fps", jpegSize, fps);
+		}
+	
+		frameCnt++;
 	}
 
 	private int skipLines(byte[] b, int pos, int cnt) {
