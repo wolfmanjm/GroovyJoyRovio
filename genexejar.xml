@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project Rovio with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="rovioconsolexe.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="com.e4net.rovio.RovioConsole"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ http-builder-0.5.2-20110320.041601-11.jar httpclient-4.0.3.jar httpcore-4.0.1.jar commons-logging-1.1.1.jar commons-codec-1.3.jar json-lib-2.3-jdk15.jar xml-resolver-1.2.jar commons-collections-3.2.1.jar Joystick.jar miglayout-3.7.4-swing.jar logback-classic-0.9.29.jar logback-core-0.9.29.jar slf4j-api-1.6.1.jar groovy-all-1.8.0.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="target/classes"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="http-builder-0.5.2-20110320.041601-11.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="httpclient-4.0.3.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="httpcore-4.0.1.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="commons-logging-1.1.1.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="commons-codec-1.3.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="json-lib-2.3-jdk15.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="xml-resolver-1.2.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="commons-collections-3.2.1.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="Joystick.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="miglayout-3.7.4-swing.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="logback-classic-0.9.29.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="logback-core-0.9.29.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="slf4j-api-1.6.1.jar"/>
+            <zipfileset dir="/home/morris/work/rovio/groovy/libs" includes="groovy-all-1.8.0.jar"/>
+         </jar>
+    </target>
+</project>
