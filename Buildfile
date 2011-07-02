@@ -54,8 +54,8 @@ define 'rovio' do
     #puts "settings: #{Buildr.settings.user.inspect}"
     username, password= Buildr.settings.user['rovio'].values_at('username', 'password')
   else
-    username= "admin"
-    password= "admin"
+    username= ""
+    password= ""
   end
   run.using :main => ["com.e4net.rovio.RovioConsole", username, password], :java_args => ["-Djava.library.path=./libs"]
 end

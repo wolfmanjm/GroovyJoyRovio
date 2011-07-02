@@ -12,7 +12,9 @@ import javax.swing.UIManager
 import javax.swing.WindowConstants as WC
 import javax.swing.SwingConstants as SC
 import javax.swing.Timer
+import javax.swing.JOptionPane
 
+import java.util.prefs.Preferences
 import net.miginfocom.swing.MigLayout
 
 
@@ -27,9 +29,6 @@ import net.miginfocom.swing.MigLayout
 
 @Slf4j
 class RovioConsole {
-	static final String USERNAME= "admin"
-	static final String PASSWORD= "admin"
-	
 	SwingBuilder swing
 	def model
 	Comms comms
@@ -174,16 +173,50 @@ class RovioConsole {
 		}
 	}
 
-
-	static main(args) {
-		def rovio= new RovioConsole()
-		rovio.show()
-		String username= USERNAME
-		String password= PASSWORD
+	def getLogin() {
+		def ds=	new SwingBuilder()
+		def p= ds.panel(layout: new MigLayout("wrap 2", "[right]rel[]", "[]10[]")) {
+			label('Username')
+			textField(id: 'username', columns: 20)
+			label('Password')
+			passwordField(id: 'password', columns: 20)
+		}
 		
+		def ret= ds.optionPane().showOptionDialog(swing.frame, p, "Enter Rovio Admin Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)
+		if(ret == 0)
+			[username: ds.username.text, password: ds.password.text]
+		else
+			null
+	}
+	
+	static main(args) {
+		RovioConsole rovio= new RovioConsole()
+		rovio.show()
+		
+		String username
+		String password
+		
+		Preferences prefs = Preferences.userNodeForPackage(rovio.getClass())
+
 		if(args.length >= 2){
 			username= args[0]
 			password= args[1]
+			prefs.put "username", username
+			prefs.put "password", password
+		}else{
+			password= prefs.get("password", null)
+			username= prefs.get("username", null)
+		}
+		
+		if(!username && !password) {
+			def login= rovio.getLogin()
+			if(login == null)
+				System.exit(1)
+				
+			username= login.username
+			password= login.password
+			prefs.put "username", username
+			prefs.put "password", password
 		}
 		
 		def comms= new Comms("http://rovio", username, password)

@@ -25,24 +25,31 @@ easy to write and modify.
 Currently it can to be built with eclipse and the groovy/eclipse plugin.
 Also buildr will build it.
 
-You will need to edit the USERERNAME and PASSWORD variables to match,
-or enter them as arguments on the comamnd line or run configuration.
+The admin login for the Rovio can be entered on the command line as
+username password, or left blank and the first time the program runs
+it will ask for the login and store them in the Java default
+preferences location.
 
-Also under eclipse you need to add -Djava.library.path=./libs to the
+Under eclipse you need to add -Djava.library.path=./libs to the
 Run configuration as this is not saved locally.
 
 presuming you have a ruby in your path...
+
 > gem install buildr
 
 then
 
 > buildr test=no package
 
-then it can be run with the 
+then it can be run with
+
+> run
+
+or 
 
 > run username password
 
-script or with 
+or
 
 > buildr test=no run
 
