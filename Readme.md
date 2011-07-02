@@ -78,3 +78,6 @@ battery level.
 Copyright Jim Morris 2011
 Licensed under the Apache license
 http://www.apache.org/licenses/LICENSE-2.0.html
+
+The Java Joystick library is Copyright 2000-2001 George Rhoten and others.
+Available from http://sourceforge.net/projects/javajoystick/

@@ -3,6 +3,15 @@ package com.e4net.rovio
 import com.centralnexus.input.Joystick
 import groovy.util.logging.Slf4j
 
+/**
+ * Wrapper for the handling the joystick commands as they relate to the Rovio
+ * 
+ * The Java Joystick library this code uses is Copyright 2000-2001 George Rhoten and others.
+ * Source code is available from http://sourceforge.net/projects/javajoystick/
+ * 
+ * @author morris
+ *
+ */
 @Slf4j
 public class RovioJoystick {	
 	private Joystick joy
