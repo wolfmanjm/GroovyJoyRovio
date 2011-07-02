@@ -30,11 +30,11 @@ import net.miginfocom.swing.MigLayout
 @Slf4j
 class RovioConsole {
 	SwingBuilder swing
-	def model
 	Comms comms
 	MJPEGParser mjpeg
 	def resolution
 	boolean running= false
+	String host
 	
 	@Bindable String fps= "?"
 	@Bindable String status= "Not Running"
@@ -44,7 +44,6 @@ class RovioConsole {
 	RovioConsole() {
 		SwingBuilder.lookAndFeel('mac', 'nimbus', 'gtk', ['metal', [boldFonts: false]])
 		swing= new SwingBuilder()
-		model= { status: 'this is the status' }
 	}
 
 	def show() {
@@ -127,7 +126,7 @@ class RovioConsole {
 		def s= comms.getStatus()
 		swing.doLater { 
 			swing.start.enabled= false
-			status= "Running"
+			status= "Connected to $host"
 			currentResolution= s.resolution as Integer
 		}
 		log.debug "current resolution: {}", currentResolution
@@ -176,6 +175,8 @@ class RovioConsole {
 	def getLogin() {
 		def ds=	new SwingBuilder()
 		def p= ds.panel(layout: new MigLayout("wrap 2", "[right]rel[]", "[]10[]")) {
+			label('Hostname or IP')
+			textField(id: 'host', columns: 20)
 			label('Username')
 			textField(id: 'username', columns: 20)
 			label('Password')
@@ -184,7 +185,7 @@ class RovioConsole {
 		
 		def ret= ds.optionPane().showOptionDialog(swing.frame, p, "Enter Rovio Admin Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)
 		if(ret == 0)
-			[username: ds.username.text, password: ds.password.text]
+			[host: ds.host.text, username: ds.username.text, password: ds.password.text]
 		else
 			null
 	}
@@ -193,38 +194,46 @@ class RovioConsole {
 		RovioConsole rovio= new RovioConsole()
 		rovio.show()
 		
+		String host
 		String username
 		String password
 		
 		Preferences prefs = Preferences.userNodeForPackage(rovio.getClass())
 
-		if(args.length >= 2){
-			username= args[0]
-			password= args[1]
+		if(args.length >= 3){
+			host= args[0]
+			username= args[1]
+			password= args[2]
 			prefs.put "username", username
 			prefs.put "password", password
+			prefs.put "host", host
 		}else{
 			password= prefs.get("password", null)
 			username= prefs.get("username", null)
+			host= prefs.get("host", null)
 		}
 		
-		if(!username && !password) {
+		if(!host || !username || !password) {
 			def login= rovio.getLogin()
 			if(login == null)
 				System.exit(1)
 				
+			host= login.host
 			username= login.username
 			password= login.password
+			prefs.put "host", host
 			prefs.put "username", username
 			prefs.put "password", password
 		}
 		
-		def comms= new Comms("http://rovio", username, password)
+		rovio.host= host
+		
+		def comms= new Comms("http://$host", username, password)
 		rovio.comms= comms
 
 		def joy= RovioJoystick.create(comms)
 
-		rovio.mjpeg= new MyMJPEG(rovio, "http://rovio/GetData.cgi", username, password)
+		rovio.mjpeg= new MyMJPEG(rovio, "http://$host/GetData.cgi", username, password)
 	}
 
 }

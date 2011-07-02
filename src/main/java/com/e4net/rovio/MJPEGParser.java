@@ -13,9 +13,6 @@ import org.slf4j.LoggerFactory;
 
 public class MJPEGParser {
 	private static final Logger jlog = LoggerFactory.getLogger(MJPEGParser.class);
-
-	private static final String USERNAME = "admin";
-	private static final String PASSWORD = "admin"; 
 	
 	private final int MAXFRAME= 8192;
 	private String boundary=  "--WINBONDBOUDARY";
@@ -28,16 +25,23 @@ public class MJPEGParser {
 	
 	/**
 	 * @param args
+	 * 
+	 * For testing only
 	 */
 	public static void main(String[] args) {
-		String username= USERNAME;
-		String password= PASSWORD;
+		String host;
+		String username;
+		String password;
 		
-		if(args.length >= 2){
-			username= args[0];
-			password= args[1];
+		if(args.length >= 3){
+			host= args[0];
+			username= args[1];
+			password= args[2];
+		}else{
+			jlog.error("Usage: host username password are required");
+			return;
 		}
-		MJPEGParser m= new MJPEGParser("http://rovio/GetData.cgi", username, password);
+		MJPEGParser m= new MJPEGParser("http://" + host + "/GetData.cgi", username, password);
 		m.start();
 	}
 
