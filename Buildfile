@@ -11,6 +11,7 @@ repositories.remote << 'http://www.ibiblio.org/maven2/'
 repositories.remote << 'http://repo1.maven.org/maven2/'
 repositories.remote << "http://repository.codehaus.org/"
 repositories.remote << "http://snapshots.repository.codehaus.org/"
+repositories.remote << "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local"
 
 COMMONS             = struct(
   :codec            =>"commons-codec:commons-codec:jar:1.3",
@@ -44,8 +45,7 @@ define 'rovio' do
   project.group = GROUP
   project.version = VERSION_NUMBER
   compile.options.target = '1.6'
-  compile.with LIBS, _("libs/Joystick.jar"), _("libs/http-builder-0.5.2-20110320.041601-11.jar")
-  #, _("libs/groovypp-0.4.268_1.8.0.jar")
+  compile.with LIBS, _("libs/Joystick.jar"), _("libs/http-builder-0.5.2-20110320.041601-11.jar") #, _("libs/groovypp-all-0.4.268_1.8.0.jar")
   package(:jar)
 
   # load up local profiles info, can store passwords here
@@ -79,6 +79,7 @@ end
 
 task :trans do
   # puts transitive(LOGGING.first)
-  puts transitive('org.codehaus.groovy.modules.http-builder:http-builder:jar:0.5.2-SNAPSHOT')
+  #puts transitive('org.codehaus.groovy.modules.http-builder:http-builder:jar:0.5.2-SNAPSHOT')
+  puts transitive('org.mbte.groovypp:groovypp-all:jar:0.4.268_1.8.0')
   #puts transitive('org.apache.httpcomponents:httpclient:jar:4.0.3')
 end

@@ -17,6 +17,9 @@ import javax.swing.SwingConstants as SC
 import javax.swing.Timer
 import javax.swing.JOptionPane
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.prefs.Preferences
 import net.miginfocom.swing.MigLayout
 
@@ -30,8 +33,9 @@ import net.miginfocom.swing.MigLayout
  *
  */
 
-@Slf4j
 class RovioConsole {
+	private static final Logger log = LoggerFactory.getLogger(RovioConsole.class);
+	 
 	SwingBuilder swing
 	Comms comms
 	MJPEGParser mjpeg
@@ -250,7 +254,6 @@ class RovioConsole {
 
 }
 
-@Slf4j
 class MyMJPEG extends MJPEGParser {
 	long lasttime;
 	int cnt= 0;

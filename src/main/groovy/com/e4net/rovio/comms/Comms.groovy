@@ -1,10 +1,12 @@
 package com.e4net.rovio.comms
 
-import groovy.util.logging.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import groovyx.net.http.HTTPBuilder;
 
-@Slf4j
 class Comms {
+	private static final Logger log = LoggerFactory.getLogger(Comms.class); 
 	private HTTPBuilder http
 
 	Comms(url, user, password) {
