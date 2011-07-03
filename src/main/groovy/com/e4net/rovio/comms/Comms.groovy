@@ -1,4 +1,4 @@
-package com.e4net.rovio
+package com.e4net.rovio.comms
 
 import groovy.util.logging.Slf4j;
 import groovyx.net.http.HTTPBuilder;

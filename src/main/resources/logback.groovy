@@ -19,8 +19,12 @@ appender("RootConsoleAppender", ConsoleAppender) {
 
 root(INFO, ["RootConsoleAppender"])
 
-logger("com.e4net", DEBUG)
+logger("com.e4net.rovio.joystick", DEBUG)
+logger("com.e4net.rovio.comms", DEBUG)
+logger("com.e4net.rovio", DEBUG)
+
 logger("httpclient.wire.content", WARN)
 logger("httpclient.wire.header", WARN)
+
 logger("org.apache.commons.httpclient", WARN)
 logger("org.apache.commons.httpclient.HttpMethodDirector", ERROR)

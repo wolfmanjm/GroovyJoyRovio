@@ -1,5 +1,8 @@
 package com.e4net.rovio
 
+import com.e4net.rovio.joystick.RovioJoystick
+import com.e4net.rovio.comms.Comms
+
 import groovyx.net.http.HTTPBuilder
 
 import groovy.beans.Bindable
@@ -35,6 +38,7 @@ class RovioConsole {
 	def resolution
 	boolean running= false
 	String host
+	def joy
 	
 	@Bindable String fps= "?"
 	@Bindable String status= "Not Running"
@@ -91,11 +95,12 @@ class RovioConsole {
 					}
 
 					checkBox(id: 'light', text: 'Light', actionPerformed: {comms.setLight(light.selected)}, constraints: 'sg, align left')
-					checkBox(id: 'bluelight', text: 'blue', selected: true, actionPerformed: {comms.setBlueLights(bluelight.selected)}, constraints: 'sg, align left')
+					checkBox(id: 'bluelight', text: 'Blue lights', selected: true, actionPerformed: {comms.setBlueLights(bluelight.selected)}, constraints: 'sg, align left')
 
-					button(text:'Test', constraints: 'gap push, sg, align right', actionPerformed: { comms.moveHead("up") })
-					button(id: 'start', text:'Start', constraints: 'gap push, sg, align right', actionPerformed: { start() })
-					button(id: 'stop', text:'Stop', constraints: 'sg, align right', actionPerformed: { stop() })
+					//button(text:'Test', constraints: 'gap push, sg, align right', actionPerformed: { comms.moveHead("up") })
+					
+					button(id: 'start', text:'Start Video', constraints: 'gap push, sg, align right', actionPerformed: { start() })
+					button(id: 'stop', text:'Stop Video', constraints: 'sg, align right', actionPerformed: { stop() })
 					button(text:'Quit', constraints: 'sg, align right, wrap', actionPerformed: { System.exit(0) })
 
 					panel(border:loweredBevelBorder(4),	layout: new MigLayout('fill, insets 1'), constraints: 'growx, dock south') {
@@ -117,6 +122,7 @@ class RovioConsole {
 
 		swing.doLater{
 			frame.size= [900, 700]
+			status= "Host $host"
 		}
 	}
 	
@@ -126,11 +132,11 @@ class RovioConsole {
 		def s= comms.getStatus()
 		swing.doLater { 
 			swing.start.enabled= false
-			status= "Connected to $host"
+			status= "Video running to $host"
 			currentResolution= s.resolution as Integer
 		}
 		log.debug "current resolution: {}", currentResolution
-		comms.setFrameRate(15)
+		//comms.setFrameRate(15) // this does not seem to affect MJPEG 
 	}
 	
 	def stop() {
@@ -138,7 +144,7 @@ class RovioConsole {
 		running= false
 		swing.doLater { 
 			swing.start.enabled= true
-			status= "Not Running"
+			status= "Host $host"
 		}
 	}
 	
@@ -231,8 +237,14 @@ class RovioConsole {
 		def comms= new Comms("http://$host", username, password)
 		rovio.comms= comms
 
-		def joy= RovioJoystick.create(comms)
-
+		try {
+			rovio.joy= RovioJoystick.create(comms)
+			
+		}catch(Exception) {
+			//log.error("No Joystick found")
+			JOptionPane.showMessageDialog(rovio.swing.frame, "No Joystick found", "Joystick Error", JOptionPane.ERROR_MESSAGE)
+		}
+		
 		rovio.mjpeg= new MyMJPEG(rovio, "http://$host/GetData.cgi", username, password)
 	}
 

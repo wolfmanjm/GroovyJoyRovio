@@ -1,7 +1,11 @@
-package com.e4net.rovio
+package com.e4net.rovio.joystick
+
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.Level
 
 import com.centralnexus.input.Joystick
-import groovy.util.logging.Slf4j
+import com.e4net.rovio.comms.Comms
 
 /**
  * Wrapper for the handling the joystick commands as they relate to the Rovio
@@ -12,8 +16,9 @@ import groovy.util.logging.Slf4j
  * @author morris
  *
  */
-@Slf4j
-public class RovioJoystick {	
+public class RovioJoystick {
+	private static final Logger log = LoggerFactory.getLogger(RovioJoystick.class); 
+		
 	private Joystick joy
 	private Thread thread
 	private Comms comms
@@ -29,6 +34,7 @@ public class RovioJoystick {
 	
 	def start() {
 		thread= Thread.start {
+			log.trace "Starting joystick thread"
 			while(!Thread.interrupted()) {
 				joy.poll()
 				handleJoy(joy)
@@ -47,6 +53,7 @@ public class RovioJoystick {
 				}else
 					lastUpdate= now;
 			}
+			log.trace "Leaving joystick thread"
 		}
 	}
 	
@@ -55,6 +62,8 @@ public class RovioJoystick {
 		float x= joy.getX()
 		float y= joy.getY()
 		float z= joy.getZ()
+		int b= joy.getButtons();
+		log.trace("handleJoy() - x= {}, y= {}, z= {}, b= {}", [x, y, z, b] as Object[]);
 		
 		if(!move(x, y))
 			rotate(z)
@@ -69,8 +78,6 @@ public class RovioJoystick {
 //		float v= joy.getV();
 //      def pov= joy.getPOV();
 		
-		// buttons
-		int b= joy.getButtons();
 		
 		if(comms) {
 			if(b & 4) {
@@ -233,6 +240,11 @@ public class RovioJoystick {
 	}
 	
 	public static create(comms) {
+		if(System.getProperty("rovio.joystick.debug")){
+			// override default logging level if specified
+			log.setLevel(Level.TRACE);
+		}
+		
 		RovioJoystick rovio = new RovioJoystick(comms)
 		rovio.start()
 		return rovio
