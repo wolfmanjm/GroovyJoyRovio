@@ -35,18 +35,19 @@ import net.miginfocom.swing.MigLayout
 
 class RovioConsole {
 	private static final Logger log = LoggerFactory.getLogger(RovioConsole.class);
-	 
+	private static Preferences prefs
+	
 	SwingBuilder swing
 	Comms comms
 	MJPEGParser mjpeg
 	def resolution
 	boolean running= false
-	String host
 	def joy
 	
-	@Bindable String fps= "?"
+	@Bindable String fps= "??? fps"
 	@Bindable String status= "Not Running"
-	@Bindable String battery= "?"
+	@Bindable String host= "???.???.???.???"
+	@Bindable String battery= "??%"
 	@Bindable int currentResolution= 0
 
 	RovioConsole() {
@@ -105,12 +106,15 @@ class RovioConsole {
 					
 					button(id: 'start', text:'Start Video', constraints: 'gap push, sg, align right', actionPerformed: { start() })
 					button(id: 'stop', text:'Stop Video', constraints: 'sg, align right', actionPerformed: { stop() })
+					button(text:'Logout', constraints: 'sg, align right', actionPerformed: { logout() })
 					button(text:'Quit', constraints: 'sg, align right, wrap', actionPerformed: { System.exit(0) })
 
 					panel(border:loweredBevelBorder(4),	layout: new MigLayout('fill, insets 1'), constraints: 'growx, dock south') {
 						label(id: 'fps', text: bind(source: this, sourceProperty: 'fps'))
 						label(text: "|")
-						label(id: 'status', text: bind(source: this, sourceProperty: 'status'))
+						label(id: 'statusid', text: bind(source: this, sourceProperty: 'status'))
+						label(text: "|")
+						label(id: 'hostid', text: bind(source: this, sourceProperty: 'host'))
 						label(text: "|")
 						label(id: 'battery', text: bind(source: this, sourceProperty: 'battery'))
 					}
@@ -119,51 +123,51 @@ class RovioConsole {
 			}
 		}
 		
-		// create a timer that can do regular updates of the UI
-		Timer timer = new Timer(1000, { regularTasks() } as ActionListener)
-		timer.repeats= true
-		timer.start()
-
 		swing.doLater{
 			frame.size= [900, 700]
-			status= "Host $host"
 		}
 	}
 	
 	def start() {
-		mjpeg.start()
-		running= true
-		def s= comms.getStatus()
-		swing.doLater { 
-			swing.start.enabled= false
-			status= "Video running to $host"
-			currentResolution= s.resolution as Integer
+		swing.start.enabled= false
+		swing.doOutside { 
+			status= "Starting Video"
+			mjpeg.start()
+			
+			swing.doLater {
+				status= "Video running"
+			}
+			//comms.setFrameRate(15) // this does not seem to affect MJPEG	
 		}
-		log.debug "current resolution: {}", currentResolution
-		//comms.setFrameRate(15) // this does not seem to affect MJPEG 
 	}
 	
 	def stop() {
-		mjpeg.stop()
-		running= false
-		swing.doLater { 
-			swing.start.enabled= true
-			status= "Host $host"
+		status= "Stopping"
+		swing.doOutside { 
+			mjpeg.stop()
+			running= false
+			swing.doLater { 
+				swing.start.enabled= true
+				status= "Not Running"
+			}
 		}
+	}
+	
+	def logout() {
+		prefs.clear();
+		System.exit(0);	
 	}
 	
 	// gets called every second, use to check battery status
 	def regularTasks() {
-		if(running) {
+		swing.doOutside { 
 			def s= comms.getStatus()
-			swing.doLater {
-				def b= s.battery as Integer
-				if(b < 106){
-					battery= "critical"
-				}else{
-					b= ((b-106)*100)/(127-106) as Integer
-					battery= "$b%"
-				}	
+			def b= s.battery as Integer
+			if(b < 106){
+				battery= "critical"
+			}else{
+				b= ((b-106)*100)/(127-106) as Integer
+				battery= "$b%"
 			}
 		}
 	}
@@ -176,7 +180,6 @@ class RovioConsole {
 	}
 
 	def setFrameRate(int r) {
-		//println "Frame rate: ${r} frames/sec"
 		swing.doLater {
 			fps= "$r fps"
 		}
@@ -208,7 +211,7 @@ class RovioConsole {
 		String username
 		String password
 		
-		Preferences prefs = Preferences.userNodeForPackage(rovio.getClass())
+		prefs = Preferences.userNodeForPackage(rovio.getClass())
 
 		if(args.length >= 3){
 			host= args[0]
@@ -250,6 +253,26 @@ class RovioConsole {
 		}
 		
 		rovio.mjpeg= new MyMJPEG(rovio, "http://$host/GetData.cgi", username, password)
+		
+		// get status from rovio
+		try {
+			def st= comms.getStatus()
+			rovio.running= true
+			rovio.status= "Connected"
+			rovio.currentResolution= st.resolution as Integer
+
+		}catch(Exception e){
+			prefs.clear()
+			def error= e.getMessage()
+			log.error("Error getting status: {}", error)
+			JOptionPane.showMessageDialog(rovio.swing.frame, error, "Failed to connect to Rovio", JOptionPane.ERROR_MESSAGE)
+			System.exit(1)
+		}
+		
+		// create a timer that can do regular updates of the UI
+		Timer timer = new Timer(1000, { rovio.regularTasks() } as ActionListener)
+		timer.repeats= true
+		timer.start()
 	}
 
 }
@@ -257,11 +280,11 @@ class RovioConsole {
 class MyMJPEG extends MJPEGParser {
 	long lasttime;
 	int cnt= 0;
-	RovioConsole frame;
+	RovioConsole rc;
 
-	public MyMJPEG(RovioConsole frame, String mjpeg_url, String username, String password) {
+	public MyMJPEG(RovioConsole rc, String mjpeg_url, String username, String password) {
 		super(mjpeg_url, username, password);
-		this.frame= frame;
+		this.rc= rc;
 		lasttime= System.currentTimeMillis()
 	}
 
@@ -270,12 +293,12 @@ class MyMJPEG extends MJPEGParser {
 		long tm= System.currentTimeMillis();
 		def delta= tm-lasttime
 		if(delta >= 1000){
-			frame.setFrameRate((cnt/(delta/1000)) as Integer);
+			rc.setFrameRate((cnt/(delta/1000)) as Integer);
 			cnt= 0;
 			lasttime= tm;
 		}
 	
 		cnt++;
-		frame.setImage(capture);
+		rc.setImage(capture);
 	}
 }

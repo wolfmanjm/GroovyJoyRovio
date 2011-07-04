@@ -16,7 +16,6 @@ import com.e4net.rovio.comms.Comms
  * @author morris
  *
  */
-
 public class RovioJoystick {
 	private static final Logger log = LoggerFactory.getLogger(RovioJoystick.class); 
 		
@@ -242,7 +241,7 @@ public class RovioJoystick {
 	
 	public static create(comms) {
 		// override default logging level if specified
-		if(System.getProperty("rovio.joystick.debug")){
+		if("true" == System.getProperty("rovio.joystick.debug")){
 			log.setLevel(Level.TRACE);
 		}
 		
