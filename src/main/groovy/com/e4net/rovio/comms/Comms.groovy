@@ -4,13 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import groovyx.net.http.HTTPBuilder;
+import org.apache.http.params.HttpConnectionParams
 
 class Comms {
 	private static final Logger log = LoggerFactory.getLogger(Comms.class); 
 	private HTTPBuilder http
+	private final int timeout= 30000 // 30 second timeout
 
 	Comms(url, user, password) {
 		http= new HTTPBuilder(url)
+		HttpConnectionParams.setConnectionTimeout( http.client.params, timeout );
+		HttpConnectionParams.setSoTimeout( http.client.params, timeout );
 		http.auth.basic user, password
 	}
 

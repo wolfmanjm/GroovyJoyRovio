@@ -37,6 +37,7 @@ class RovioConsole {
 	private static final Logger log = LoggerFactory.getLogger(RovioConsole.class);
 	private static Preferences prefs
 	
+	Model model
 	SwingBuilder swing
 	Comms comms
 	MJPEGParser mjpeg
@@ -44,15 +45,11 @@ class RovioConsole {
 	boolean running= false
 	def joy
 	
-	@Bindable String fps= "??? fps"
-	@Bindable String status= "Not Running"
-	@Bindable String host= "???.???.???.???"
-	@Bindable String battery= "??%"
-	@Bindable int currentResolution= 0
 
-	RovioConsole() {
+	RovioConsole(model) {
 		SwingBuilder.lookAndFeel('mac', 'nimbus', 'gtk', ['metal', [boldFonts: false]])
 		swing= new SwingBuilder()
+		this.model= model
 	}
 
 	def show() {
@@ -73,7 +70,7 @@ class RovioConsole {
 							[0: 'QCIF', 1: 'CIF', 2: 'QVGA', 3: 'VGA'].each { e ->
 								radioButton(actionPerformed: { comms.setResolution(it.source.getClientProperty("Id")) },
 								clientPropertyId: e.key, text: e.value, buttonGroup: group,
-								selected: bind(source: this, sourceProperty: 'currentResolution', converter: { it == e.key } ),
+								selected: bind(source: model, sourceProperty: 'currentResolution', converter: { it == e.key } ),
 								constraints: "hidemode 3")
 							}
 						}
@@ -110,13 +107,13 @@ class RovioConsole {
 					button(text:'Quit', constraints: 'sg, align right, wrap', actionPerformed: { System.exit(0) })
 
 					panel(border:loweredBevelBorder(4),	layout: new MigLayout('fill, insets 1'), constraints: 'growx, dock south') {
-						label(id: 'fps', text: bind(source: this, sourceProperty: 'fps'))
+						label(id: 'fps', text: bind(source: model, sourceProperty: 'fps'))
 						label(text: "|")
-						label(id: 'statusid', text: bind(source: this, sourceProperty: 'status'))
+						label(id: 'statusid', text: bind(source: model, sourceProperty: 'status'))
 						label(text: "|")
-						label(id: 'hostid', text: bind(source: this, sourceProperty: 'host'))
+						label(id: 'hostid', text: bind(source: model, sourceProperty: 'host'))
 						label(text: "|")
-						label(id: 'battery', text: bind(source: this, sourceProperty: 'battery'))
+						label(id: 'battery', text: bind(source: model, sourceProperty: 'battery'))
 					}
 
 				}
@@ -131,24 +128,24 @@ class RovioConsole {
 	def start() {
 		swing.start.enabled= false
 		swing.doOutside { 
-			status= "Starting Video"
+			model.status= "Starting Video"
 			mjpeg.start()
 			
 			swing.doLater {
-				status= "Video running"
+				model.status= "Video running"
 			}
 			//comms.setFrameRate(15) // this does not seem to affect MJPEG	
 		}
 	}
 	
 	def stop() {
-		status= "Stopping"
+		model.status= "Stopping"
 		swing.doOutside { 
 			mjpeg.stop()
 			running= false
 			swing.doLater { 
 				swing.start.enabled= true
-				status= "Not Running"
+				model.status= "Not Running"
 			}
 		}
 	}
@@ -164,10 +161,10 @@ class RovioConsole {
 			def s= comms.getStatus()
 			def b= s.battery as Integer
 			if(b < 106){
-				battery= "critical"
+				model.battery= "critical"
 			}else{
 				b= ((b-106)*100)/(127-106) as Integer
-				battery= "$b%"
+				model.battery= "$b%"
 			}
 		}
 	}
@@ -180,9 +177,7 @@ class RovioConsole {
 	}
 
 	def setFrameRate(int r) {
-		swing.doLater {
-			fps= "$r fps"
-		}
+		model.fps= "$r fps"
 	}
 
 	def getLogin() {
@@ -204,7 +199,8 @@ class RovioConsole {
 	}
 	
 	static main(args) {
-		RovioConsole rovio= new RovioConsole()
+		Model model= new Model()
+		RovioConsole rovio= new RovioConsole(model)
 		rovio.show()
 		
 		String host
@@ -239,7 +235,7 @@ class RovioConsole {
 			prefs.put "password", password
 		}
 		
-		rovio.host= host
+		model.host= host
 		
 		def comms= new Comms("http://$host", username, password)
 		rovio.comms= comms
@@ -258,8 +254,8 @@ class RovioConsole {
 		try {
 			def st= comms.getStatus()
 			rovio.running= true
-			rovio.status= "Connected"
-			rovio.currentResolution= st.resolution as Integer
+			model.status= "Connected"
+			model.currentResolution= st.resolution as Integer
 
 		}catch(Exception e){
 			prefs.clear()
@@ -275,6 +271,15 @@ class RovioConsole {
 		timer.start()
 	}
 
+}
+
+// encapsulate objects that can be updated externally
+class Model {
+	@Bindable String fps= "??? fps"
+	@Bindable String status= "Trying to Connect..."
+	@Bindable String host= "???.???.???.???"
+	@Bindable String battery= "??%"
+	@Bindable int currentResolution= 0
 }
 
 class MyMJPEG extends MJPEGParser {
