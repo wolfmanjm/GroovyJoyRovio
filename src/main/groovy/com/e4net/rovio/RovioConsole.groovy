@@ -145,7 +145,7 @@ class RovioConsole {
 			running= false
 			swing.doLater { 
 				swing.start.enabled= true
-				model.status= "Not Running"
+				model.status= "Video Not Running"
 			}
 		}
 	}
@@ -181,76 +181,57 @@ class RovioConsole {
 	}
 
 	def getLogin() {
+		// create a popup modal dialog asking for info
 		def ds=	new SwingBuilder()
 		def p= ds.panel(layout: new MigLayout("wrap 2", "[right]rel[]", "[]10[]")) {
 			label('Hostname or IP')
-			textField(id: 'host', columns: 20)
+			textField(columns: 20, text: bind(target: model, targetProperty: 'host', mutual: true))
 			label('Username')
-			textField(id: 'username', columns: 20)
+			textField(columns: 20, text: bind(target: model, targetProperty: 'username', mutual: true))
 			label('Password')
-			passwordField(id: 'password', columns: 20)
+			passwordField(columns: 20, text: bind(target: model, targetProperty: 'password', mutual: true))
 		}
 		
 		def ret= ds.optionPane().showOptionDialog(swing.frame, p, "Enter Rovio Admin Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null)
-		if(ret == 0)
-			[host: ds.host.text, username: ds.username.text, password: ds.password.text]
-		else
-			null
+		return ret == 0
 	}
 	
 	static main(args) {
 		Model model= new Model()
 		RovioConsole rovio= new RovioConsole(model)
 		rovio.show()
-		
-		String host
-		String username
-		String password
-		
-		prefs = Preferences.userNodeForPackage(rovio.getClass())
-
-		if(args.length >= 3){
-			host= args[0]
-			username= args[1]
-			password= args[2]
-			prefs.put "username", username
-			prefs.put "password", password
-			prefs.put "host", host
-		}else{
-			password= prefs.get("password", null)
-			username= prefs.get("username", null)
-			host= prefs.get("host", null)
-		}
-		
-		if(!host || !username || !password) {
-			def login= rovio.getLogin()
-			if(login == null)
-				System.exit(1)
 				
-			host= login.host
-			username= login.username
-			password= login.password
-			prefs.put "host", host
-			prefs.put "username", username
-			prefs.put "password", password
+		prefs= Preferences.userNodeForPackage(rovio.getClass())
+
+		// if arguments are provided use them as temporary override
+		if(args.length >= 3){
+			model.host= args[0]
+			model.username= args[1]
+			model.password= args[2]
+
+		}else{
+			// get saved info
+			model.password= prefs.get("password", null)
+			model.username= prefs.get("username", null)
+			model.host= prefs.get("host", null)
+			
+			// if any are not set prompt for them
+			if(!model.host || !model.username || !model.password) {
+				if(!rovio.getLogin())
+					System.exit(1)				
+			}
+			
+			// save info
+			prefs.put "host", model.host
+			prefs.put "username", model.username
+			prefs.put "password", model.password
 		}
 		
-		model.host= host
-		
-		def comms= new Comms("http://$host", username, password)
+		// Create a comms object to the host with the login credentials
+		def comms= new Comms("http://$model.host", model.username, model.password)
 		rovio.comms= comms
 
-		try {
-			rovio.joy= RovioJoystick.create(comms)
-			
-		}catch(Exception) {
-			//log.error("No Joystick found")
-			JOptionPane.showMessageDialog(rovio.swing.frame, "No Joystick found", "Joystick Error", JOptionPane.ERROR_MESSAGE)
-		}
-		
-		rovio.mjpeg= new MyMJPEG(rovio, "http://$host/GetData.cgi", username, password)
-		
-		// get status from rovio
+		// get initial status from rovio, tests connectivity
 		try {
 			def st= comms.getStatus()
 			rovio.running= true
@@ -265,6 +246,18 @@ class RovioConsole {
 			System.exit(1)
 		}
 		
+		// Create a Joystick object
+		try {
+			rovio.joy= RovioJoystick.create(comms)
+			
+		}catch(Exception) {
+			//log.error("No Joystick found")
+			JOptionPane.showMessageDialog(rovio.swing.frame, "No Joystick found", "Joystick Error", JOptionPane.ERROR_MESSAGE)
+		}
+		
+		// create the MJPEG grabber
+		rovio.mjpeg= new MyMJPEG(rovio, "http://$model.host/GetData.cgi", model.username, model.password)
+		
 		// create a timer that can do regular updates of the UI
 		Timer timer = new Timer(1000, { rovio.regularTasks() } as ActionListener)
 		timer.repeats= true
@@ -273,11 +266,13 @@ class RovioConsole {
 
 }
 
-// encapsulate objects that can be updated externally
+// encapsulate objects that can be updated asynchronously
 class Model {
 	@Bindable String fps= "??? fps"
 	@Bindable String status= "Trying to Connect..."
 	@Bindable String host= "???.???.???.???"
+	@Bindable String username
+	@Bindable String password
 	@Bindable String battery= "??%"
 	@Bindable int currentResolution= 0
 }
