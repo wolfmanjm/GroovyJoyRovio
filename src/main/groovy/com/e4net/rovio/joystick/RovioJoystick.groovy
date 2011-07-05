@@ -16,6 +16,7 @@ import com.e4net.rovio.comms.Comms
  * @author morris
  *
  */
+
 public class RovioJoystick {
 	private static final Logger log = LoggerFactory.getLogger(RovioJoystick.class); 
 		
@@ -107,7 +108,8 @@ public class RovioJoystick {
 			double angle = angler * (180D / Math.PI);
 			
 			// print "angle: $angle"
-			
+			// move_id= Math.round(angle/45.0) as Integer
+			// 0-8 
 			switch(angle) {
 				case {angle < 22.5D}:
 						move_id = 'forward'; break

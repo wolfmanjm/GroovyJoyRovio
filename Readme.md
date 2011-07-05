@@ -30,8 +30,12 @@ hostname username password, or left blank and the first time the program runs
 it will ask for the login and store them in the Java default
 preferences location.
 
+Eclipse setup...
+
 Under eclipse you need to add -Djava.library.path=./libs to the
 Run configuration as this is not saved locally.
+Also in the Preferences/Groovy/Compiler check the Enable script folder support and add
+src/main/resources/**/*.groovy to the exclude list if not already there.
 
 presuming you have a ruby in your path...
 

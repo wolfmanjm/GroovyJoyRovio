@@ -45,7 +45,7 @@ define 'rovio' do
   project.group = GROUP
   project.version = VERSION_NUMBER
   compile.options.target = '1.6'
-  compile.with LIBS, _("libs/Joystick.jar"), _("libs/http-builder-0.5.2-20110320.041601-11.jar") #, _("libs/groovypp-all-0.4.268_1.8.0.jar")
+  compile.with LIBS, _("libs/Joystick.jar"), _("libs/http-builder-0.5.2-20110320.041601-11.jar") #, _("libs/groovypp-0.4.268_1.8.0.jar")
   package(:jar)
 
   # load up local profiles info, can store passwords here
@@ -58,6 +58,8 @@ define 'rovio' do
     username= ""
     password= ""
   end
+
+  # Note if using groovypp it needs to run with groovypp-all.jar although it needs to compile with groovypp.jar
   run.using :main => ["com.e4net.rovio.RovioConsole", host, username, password], :java_args => ["-Djava.library.path=./libs"]
 end
 
