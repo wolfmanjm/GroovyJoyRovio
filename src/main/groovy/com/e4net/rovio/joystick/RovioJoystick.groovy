@@ -27,7 +27,8 @@ public class RovioJoystick {
 	private long lastUpdate= 0
 	private final int MOTORDELAY= 200
 	
-	RovioJoystick(comms) {
+	RovioJoystick(comms, n) {
+		log.debug("Attempting to open joystick {}", n)
 		joy = Joystick.createInstance(0)
 		log.info "Opened joystick: ${joy.toString()}"
 		this.comms= comms	
@@ -241,19 +242,19 @@ public class RovioJoystick {
 		thread.interrupt()
 	}
 	
-	public static create(comms) {
+	public static create(comms, n) {
 		// override default logging level if specified
 		if("true" == System.getProperty("rovio.joystick.debug")){
 			log.setLevel(Level.TRACE);
 		}
 		
-		RovioJoystick rovio = new RovioJoystick(comms)
+		RovioJoystick rovio = new RovioJoystick(comms, n)
 		rovio.start()
 		return rovio
 	}
 	
 	public static void main(String[] args) {
-		RovioJoystick rovio = new RovioJoystick(null)
+		RovioJoystick rovio = new RovioJoystick(null, 0)
 		rovio.start()
 	}
 }

@@ -197,6 +197,8 @@ class RovioConsole {
 	}
 	
 	static main(args) {
+		log.info("Rovio Joystick Controller v1.0")
+		
 		Model model= new Model()
 		RovioConsole rovio= new RovioConsole(model)
 		rovio.show()
@@ -228,6 +230,8 @@ class RovioConsole {
 		}
 		
 		// Create a comms object to the host with the login credentials
+		log.debug("connecting to {} with usename {}", model.host, model.username) 
+		
 		def comms= new Comms("http://$model.host", model.username, model.password)
 		rovio.comms= comms
 
@@ -248,7 +252,8 @@ class RovioConsole {
 		
 		// Create a Joystick object
 		try {
-			rovio.joy= RovioJoystick.create(comms)
+			// TODO need to allow configuration to select the joystick to use
+			rovio.joy= RovioJoystick.create(comms, 0)
 			
 		}catch(Exception) {
 			//log.error("No Joystick found")
