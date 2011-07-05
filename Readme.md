@@ -30,14 +30,23 @@ hostname username password, or left blank and the first time the program runs
 it will ask for the login and store them in the Java default
 preferences location.
 
-Eclipse setup...
+Eclipse setup
+------------
 
 Under eclipse you need to add -Djava.library.path=./libs to the
-Run configuration as this is not saved locally.
+Run configuration or use the RovioConsole.launch which has it already
+setup.
+
 Also in the Preferences/Groovy/Compiler check the Enable script folder support and add
 src/main/resources/**/*.groovy to the exclude list if not already there.
 
-presuming you have a ruby in your path...
+Buildr
+-----
+
+You can also build from the command line using
+[buildr](http://buildr.apache.org/)
+
+Presuming you have a ruby in your path...
 
 > gem install buildr
 
