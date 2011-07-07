@@ -14,17 +14,20 @@ import org.slf4j.LoggerFactory;
 public class MJPEGParser {
 	private static final Logger jlog = LoggerFactory.getLogger(MJPEGParser.class);
 	
-	private final int MAXFRAME= 8192;
-	private String boundary=  "--WINBONDBOUDARY";
-	private int[] failure;
-	private String mjpeg_url;
-	private String username;
-	private String password;
-	private BufferedInputStream bis;
-	private enum State {FIRST, SKIP, SECOND};
-	private long lasttime;
-	private int frameCnt;
-	
+	private final int			MAXFRAME	= 8192;
+	private String				boundary	= "--WINBONDBOUDARY";
+	private int[]				failure;
+	private String				mjpeg_url;
+	private String				username;
+	private String				password;
+	private BufferedInputStream	bis;
+
+	private enum State {
+		FIRST, SKIP, SECOND
+	};
+
+	private long	lasttime;
+	private int		frameCnt;
 	
 	/**
 	 * @param args
@@ -98,7 +101,7 @@ public class MJPEGParser {
 								jlog.trace("first boundary found");
 								state= State.SKIP;
 								off= 0;
-								
+
 							case SKIP:
 								// boundary found at pos, now skip rest of header lines and get to data
 								frameStart= skipLines(b, pos, 3); // read ahead number of lines
@@ -109,7 +112,7 @@ public class MJPEGParser {
 								jlog.trace("first boundary headers found");
 								state= State.SECOND;
 								off= frameStart;
-								
+
 							case SECOND:
 								// frameStart now points to start of JPEG frame
 								if ((pos = findString(b, off, b.length, boundary)) == -1){
@@ -119,7 +122,7 @@ public class MJPEGParser {
 								}
 								jlog.trace("second boundary found");
 								break;
-								
+
 							default:
 								throw new IllegalStateException("Unknown state: " + state);
 						}

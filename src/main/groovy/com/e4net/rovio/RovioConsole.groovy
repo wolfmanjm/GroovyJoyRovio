@@ -268,7 +268,6 @@ class RovioConsole {
 		timer.repeats= true
 		timer.start()
 	}
-
 }
 
 // encapsulate objects that can be updated asynchronously

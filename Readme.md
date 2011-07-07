@@ -89,8 +89,7 @@ getting via MJPEG, what we are connected to, and the approximate
 battery level.
 
 Copyright Jim Morris 2011
-Licensed under the Apache license
-http://www.apache.org/licenses/LICENSE-2.0.html
+Licensed under Simplified BSD License
 
 The Java Joystick library is Copyright 2000-2001 George Rhoten and others.
 Available from http://sourceforge.net/projects/javajoystick/
